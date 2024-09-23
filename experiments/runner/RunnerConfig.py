@@ -9,7 +9,6 @@ from ProgressManager.Output.OutputProcedure import OutputProcedure as output
 from typing import Dict, List, Any, Optional
 from pathlib import Path
 from os.path import dirname, realpath
-import requests
 
 import os
 import signal
@@ -17,6 +16,7 @@ import pandas as pd
 import time
 import subprocess
 import shlex
+from datetime import datetime
 
 class RunnerConfig:
     ROOT_DIR = Path(dirname(realpath(__file__)))
@@ -60,7 +60,8 @@ class RunnerConfig:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
         run_factor = FactorModel("run_number", ['r1', 'r2', 'r3'])
-        problem_factor = FactorModel("problem", ['longest_common_str', 'remove_duplicates'])
+        # problem_factor = FactorModel("problem", ['test'])
+        problem_factor = FactorModel("problem", ['longest_common_str', 'remove_duplicates', 'sorting_an_array'])
         prompt_factor = FactorModel("prompts", ['human', 'base_prompt', 'one_shot_prompt', 'guided_prompt'])
         self.run_table_model = RunTableModel(
             factors=[run_factor, prompt_factor, problem_factor],
@@ -73,38 +74,41 @@ class RunnerConfig:
     def before_experiment(self) -> None:
         """Perform any activity required before starting the experiment here
         Invoked only once during the lifetime of the program."""
-        pass
+        output.console_log("Config.before_experiment() called!")
 
     def before_run(self) -> None:
         """Perform any activity required before starting a run.
         No context is available here as the run is not yet active (BEFORE RUN)"""
-        pass
+        output.console_log("Config.before_run() called!")
+        self.timestamp_start = datetime.now()
 
     def start_run(self, context: RunnerContext) -> None:
         """Perform any activity required for starting the run here.
         For example, starting the target system to measure.
         Activities after starting the run should also be performed here."""
 
-        # cpu_limit = context.run_variation['cpu_limit']
-
         # start the target
         problem = context.run_variation["problem"]
         prompt_type = context.run_variation["prompts"]
 
-        self.target = subprocess.Popen(['python3', f'examples/energy/Code/DAT/{library}/{folder}/{dat_filename}.py'])
-
-        # Configure the environment based on the current variation
-        # subprocess.check_call(shlex.split(f'cpulimit -b -p {self.target.pid} --limit {cpu_limit}'))
+        self.target = subprocess.Popen(['python3', f'experiments/runner/{problem}/{prompt_type}.py'])
 
     def start_measurement(self, context: RunnerContext) -> None:
         """Perform any activity required for starting measurements."""
 
         output.console_log("Config.start_measurement() called!")
-
-        profiler_cmd = f'powerjoular -l -p {self.target.pid} -f {context.run_dir / f"{self.name}.csv"}'
+        profiler_cmd = f'powerjoular -tp {self.target.pid} -f {context.run_dir / "powerjoular.csv"}'
         #
         time.sleep(1)  # allow the process to run a little before measuring
         self.profiler = subprocess.Popen(shlex.split(profiler_cmd))
+        performance_profiler_cmd = f"ps -p {self.target.pid} --noheader -o '%cpu,%mem'"
+        # MAC OS
+        # performance_profiler_cmd = f"ps -p {self.target.pid} -o '%cpu=,%mem='"
+        timer_cmd = f"while true; do {performance_profiler_cmd}; sleep 1; done"
+        output.console_log(f"Config.start_measurement() {timer_cmd}")
+        self.performance_profiler = subprocess.Popen(['sh', '-c', timer_cmd],
+                                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                                                     )
 
     def interact(self, context: RunnerContext) -> None:
         """Perform any interaction with the running target system here, or block here until the target finishes."""
@@ -112,15 +116,15 @@ class RunnerConfig:
         # No interaction. We just run it for XX seconds.
         # Another example would be to wait for the target to finish, e.g. via `self.target.wait()`
         exit_code = self.target.wait()
-        output.console_log(f'Program finished : {exit_code}')
-        # output.console_log("Running program for 20 seconds")
-        # time.sleep(20)
+        output.console_log(f'Program Stopped : {exit_code}')
 
     def stop_measurement(self, context: RunnerContext) -> None:
         """Perform any activity here required for stopping measurements."""
-        output.console_log("Stopping measurement on the dev computer...")
+        output.console_log("Waiting for profiler stop...")
         os.kill(self.profiler.pid, signal.SIGINT)  # graceful shutdown of powerjoular
         self.profiler.wait()
+        self.performance_profiler.kill()
+        self.performance_profiler.wait()
 
     def stop_run(self, context: RunnerContext) -> None:
         """Perform any activity here required for stopping the run.
@@ -128,6 +132,8 @@ class RunnerConfig:
 
         self.target.kill()
         self.target.wait()
+        self.timestamp_end = datetime.now()
+        output.console_log("Config.stop_run() called!")
 
     def populate_run_data(self, context: RunnerContext) -> Optional[Dict[str, Any]]:
         """Parse and process any measurement data here.
@@ -136,10 +142,34 @@ class RunnerConfig:
 
         # powerjoular.csv - Power consumption of the whole system
         # powerjoular.csv-PID.csv - Power consumption of that specific process
-        df = pd.read_csv(context.run_dir / f"{self.name}.csv-{self.target.pid}.csv")
+        psdf = pd.DataFrame(columns=['cpu_usage', 'memory_usage'])
+        for i, l in enumerate(self.performance_profiler.stdout.readlines()):
+            decoded_line = l.decode('ascii').strip()
+            output.console_log(f"decode line: {decoded_line}")
+            decoded_arr = decoded_line.split()
+            cpu_usage = float(decoded_arr[0])
+            memory_usage = float(decoded_arr[1])
+            psdf.loc[i] = [cpu_usage, memory_usage]
+
+        psdf.to_csv(context.run_dir / 'raw_data.csv', index=False)
+
+        output_file = f'{context.run_dir}/powerjoular-filtered-data.csv-{self.target.pid}.csv'
+        df = pd.read_csv(context.run_dir / f"powerjoular.csv-{self.target.pid}.csv")
+        is_numeric = df.apply(
+            lambda row: row['CPU Utilization'].replace('.', '', 1).isdigit() and row['CPU Power'].replace('.', '',
+                                                                                                          1).isdigit(),
+            axis=1)
+        filtered_df = df[is_numeric]
+        for column in filtered_df.columns[1:]:
+            filtered_df[column] = filtered_df[column].astype(float)
+        filtered_df.to_csv(output_file, index=False)
+
         run_data = {
-            'avg_cpu': round(df['CPU Utilization'].sum(), 3),
-            'total_energy': round(df['CPU Power'].sum(), 3),
+            'execution_time': (self.timestamp_end - self.timestamp_start).total_seconds(),
+            'cpu_usage': round(psdf['cpu_usage'].mean(), 3),
+            'memory_usage': round(psdf['memory_usage'].mean(), 3),
+            'energy_usage': round(filtered_df['CPU Power'].sum(), 3)
+
         }
         return run_data
 
