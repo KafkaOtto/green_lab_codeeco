@@ -18,31 +18,12 @@ import time
 import subprocess
 import shlex
 
-SERVER_HOST = 'test.local'
-ITER = os.environ.get('ITER', 'none')
-FILE_PATH = os.environ.get('FILE', 'none')
-
-
-def extract_experiment_name():
-    # Split the file path
-    print(f"file_path: {FILE_PATH}")
-    print(f"ITER: {ITER}")
-    path_parts = FILE_PATH.split('/')
-
-    # Get the last directory name and the file name without the extension
-    dir_name = path_parts[-2] if len(path_parts) > 1 else 'none'  # Second last element
-    file_name = path_parts[-1].split('.')[0] if path_parts[-1] else 'none'  # Last element, without extension
-
-    name = f"{dir_name}_{file_name}_{ITER}"
-    print(f"experiment name: {name}")
-    return name
-
 class RunnerConfig:
     ROOT_DIR = Path(dirname(realpath(__file__)))
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name: str = f"{extract_experiment_name()}"
+    name: str = "new_runner_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -78,11 +59,15 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        cpu_limit_factor = FactorModel("example_factor1", [True])
+        run_factor = FactorModel("run_number", ['r1', 'r2', 'r3'])
+        problem_factor = FactorModel("problem", ['longest_common_str', 'remove_duplicates'])
+        prompt_factor = FactorModel("prompts", ['human', 'base_prompt', 'one_shot_prompt', 'guided_prompt'])
         self.run_table_model = RunTableModel(
-            factors=[cpu_limit_factor],
-            data_columns=['avg_cpu', 'total_energy']
+            factors=[run_factor, prompt_factor, problem_factor],
+            data_columns=['execution_time', 'cpu_usage', 'memory_usage', 'energy_usage'],
+            shuffle=True
         )
+
         return self.run_table_model
 
     def before_experiment(self) -> None:
@@ -103,10 +88,10 @@ class RunnerConfig:
         # cpu_limit = context.run_variation['cpu_limit']
 
         # start the target
-        self.target = subprocess.Popen(['python', FILE_PATH],
-                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                       # cwd=self.ROOT_DIR,
-                                       )
+        problem = context.run_variation["problem"]
+        prompt_type = context.run_variation["prompts"]
+
+        self.target = subprocess.Popen(['python3', f'examples/energy/Code/DAT/{library}/{folder}/{dat_filename}.py'])
 
         # Configure the environment based on the current variation
         # subprocess.check_call(shlex.split(f'cpulimit -b -p {self.target.pid} --limit {cpu_limit}'))
