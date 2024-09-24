@@ -59,10 +59,13 @@ def linked_list_to_list(head: Optional[ListNode]) -> List[int]:
     return result
 
 if __name__ == '__main__':
-    input_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-    head = list_to_linked_list(input_list)
+    for i in range(1_000):
 
-    swapped_head = Solution().swapPairs(head)
+        input_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-    result_list = linked_list_to_list(swapped_head)
+        head = list_to_linked_list(input_list)
+
+        swapped_head = Solution().swapPairs(head)
+
+        result_list = linked_list_to_list(swapped_head)

@@ -33,4 +33,5 @@ class Solution:
 
 if __name__ == '__main__':
     test_intervals = [[1, 3], [2, 6], [8, 10], [15, 18]]
-    test_solution = Solution().merge(test_intervals)
+    for i in range(1_000):
+        test_solution = Solution().merge(test_intervals)
