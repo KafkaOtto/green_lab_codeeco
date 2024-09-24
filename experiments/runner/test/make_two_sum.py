@@ -2,7 +2,7 @@ import random
 from sys import argv
 
 nums = set()
-TARGET = 500_000_00  # How many numbers to generate
+TARGET = 5_000_000  # How many numbers to generate
 
 K = 123_456  # Number to sum to
 # X + Y must add up to K
@@ -24,7 +24,7 @@ while len(output) < TARGET:
         if curr_progress != progress:
             progress = curr_progress
             print(f'{progress}% done')
-
+print('Target generated done')
 output.append(str(X))
 output.append(str(Y))
 

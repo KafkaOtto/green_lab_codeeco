@@ -60,8 +60,8 @@ class RunnerConfig:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
         run_factor = FactorModel("run_number", ['r1', 'r2', 'r3'])
-        # problem_factor = FactorModel("problem", ['test'])
-        problem_factor = FactorModel("problem", ['longest_common_str', 'remove_duplicates', 'sorting_an_array'])
+        problem_factor = FactorModel("problem", ['test'])
+        #problem_factor = FactorModel("problem", ['longest_common_str', 'remove_duplicates', 'sorting_an_array'])
         prompt_factor = FactorModel("prompts", ['human', 'base_prompt', 'one_shot_prompt', 'guided_prompt'])
         self.run_table_model = RunTableModel(
             factors=[run_factor, prompt_factor, problem_factor],
@@ -155,20 +155,20 @@ class RunnerConfig:
 
         output_file = f'{context.run_dir}/powerjoular-filtered-data.csv-{self.target.pid}.csv'
         df = pd.read_csv(context.run_dir / f"powerjoular.csv-{self.target.pid}.csv")
-        is_numeric = df.apply(
-            lambda row: row['CPU Utilization'].replace('.', '', 1).isdigit() and row['CPU Power'].replace('.', '',
-                                                                                                          1).isdigit(),
-            axis=1)
-        filtered_df = df[is_numeric]
-        for column in filtered_df.columns[1:]:
-            filtered_df[column] = filtered_df[column].astype(float)
-        filtered_df.to_csv(output_file, index=False)
+        #is_numeric = df.apply(
+        #    lambda row: row['CPU Utilization'].replace('.', '', 1).isdigit() and row['CPU Power'].replace('.', '',
+        #                                                                                                  1).isdigit(),
+        #    axis=1)
+        #filtered_df = df[is_numeric]
+        #for column in filtered_df.columns[1:]:
+        #    filtered_df[column] = filtered_df[column].astype(float)
+        #filtered_df.to_csv(output_file, index=False)
 
         run_data = {
             'execution_time': (self.timestamp_end - self.timestamp_start).total_seconds(),
             'cpu_usage': round(psdf['cpu_usage'].mean(), 3),
             'memory_usage': round(psdf['memory_usage'].mean(), 3),
-            'energy_usage': round(filtered_df['CPU Power'].sum(), 3)
+            'energy_usage': round(df['CPU Power'].sum(), 3)
 
         }
         return run_data
