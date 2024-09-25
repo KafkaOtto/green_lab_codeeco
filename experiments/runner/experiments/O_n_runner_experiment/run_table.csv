@@ -1,0 +1,19 @@
+__run_id,__done,run_number,prompts,problem,execution_time,cpu_usage,memory_usage,energy_usage
+run_6_repetition_0,DONE,r2,human,O_n_problem,99.783064,99.904,0.1,317.967
+run_7_repetition_0,DONE,r2,base_prompt,O_n_problem,92.929935,99.975,0.1,295.33
+run_1_repetition_0,DONE,r1,base_prompt,O_n_problem,90.469925,99.989,0.1,288.846
+run_12_repetition_0,DONE,r3,human,O_n_problem,101.62854,99.998,0.1,324.44
+run_4_repetition_0,DONE,r1,instructed_prompt_llen,O_n_problem,98.756088,99.917,0.1,314.568
+run_11_repetition_0,TODO,r2,instructed_prompt_de,O_n_problem, , , , 
+run_8_repetition_0,DONE,r2,few_shot_prompt,O_n_problem,97.351851,99.925,0.1,311.428
+run_9_repetition_0,DONE,r2,instructed_prompt_slen,O_n_problem,90.72453,100.0,0.1,288.844
+run_15_repetition_0,DONE,r3,instructed_prompt_slen,O_n_problem,93.727759,99.993,0.1,298.66
+run_13_repetition_0,DONE,r3,base_prompt,O_n_problem,90.983682,99.888,0.1,288.748
+run_17_repetition_0,TODO,r3,instructed_prompt_de,O_n_problem, , , , 
+run_14_repetition_0,DONE,r3,few_shot_prompt,O_n_problem,97.104077,99.905,0.1,308.196
+run_2_repetition_0,DONE,r1,few_shot_prompt,O_n_problem,94.732462,99.927,0.1,301.61
+run_0_repetition_0,DONE,r1,human,O_n_problem,94.353028,99.925,0.1,301.742
+run_10_repetition_0,DONE,r2,instructed_prompt_llen,O_n_problem,96.529904,99.911,0.1,308.124
+run_16_repetition_0,DONE,r3,instructed_prompt_llen,O_n_problem,96.38654,99.926,0.1,308.222
+run_5_repetition_0,TODO,r1,instructed_prompt_de,O_n_problem, , , , 
+run_3_repetition_0,DONE,r1,instructed_prompt_slen,O_n_problem,97.117811,99.992,0.1,311.487

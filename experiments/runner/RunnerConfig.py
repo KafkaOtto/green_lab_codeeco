@@ -23,7 +23,7 @@ class RunnerConfig:
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name: str = "new_runner_experiment"
+    name: str = "O_n_runner_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -60,7 +60,7 @@ class RunnerConfig:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
         run_factor = FactorModel("run_number", ['r1', 'r2', 'r3'])
-        problem_factor = FactorModel("problem", ['test'])
+        problem_factor = FactorModel("problem", ['O_n_problem'])
         #problem_factor = FactorModel("problem", ['longest_common_str', 'remove_duplicates', 'sorting_an_array'])
         prompt_factor = FactorModel("prompts", ['human', 'base_prompt', 'few_shot_prompt', 'instructed_prompt_slen','instructed_prompt_llen','instructed_prompt_de'])
         self.run_table_model = RunTableModel(
