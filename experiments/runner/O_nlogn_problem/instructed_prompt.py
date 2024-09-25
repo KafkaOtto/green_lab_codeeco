@@ -7,13 +7,27 @@
 from typing import List
 
 class Solution:
-
     def merge(self, intervals: List[List[int]]) -> List[List[int]]:
-        """
-        getting result from Llama3.1 with instructed code
-
-        add solution here
-        """
+        # Sort the intervals by their start time
+        intervals.sort(key=lambda x: x[0])
+        
+        # Initialize the result with the first interval
+        result = [intervals[0]]
+        
+        # Iterate through the rest of the intervals
+        for current_interval in intervals[1:]:
+            # Get the last interval in the result
+            last_interval = result[-1]
+            
+            # Check if the current interval overlaps with the last interval
+            if current_interval[0] <= last_interval[1]:
+                # Merge the current interval with the last interval
+                last_interval[1] = max(last_interval[1], current_interval[1])
+            else:
+                # Add the current interval to the result
+                result.append(current_interval)
+        
+        return result
 
 
 if __name__ == '__main__':
