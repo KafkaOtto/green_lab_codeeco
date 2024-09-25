@@ -9,20 +9,34 @@ class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
         self.next = next
+
 class Solution:
     def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        # Handle edge cases
         if not head or not head.next:
             return head
 
+        # Create a dummy node to simplify the code
         dummy = ListNode(0)
         dummy.next = head
         prev = dummy
 
-        while prev.next and prev.next.next:
-            prev.next, prev.next.next, prev.next.next.next = prev.next.next, prev.next.next.next, prev.next
-            prev = prev.next.next
+        while head and head.next:
+            # Store the nodes to be swapped
+            first_node = head
+            second_node = head.next
+
+            # Swap the nodes
+            prev.next = second_node
+            first_node.next = second_node.next
+            second_node.next = first_node
+
+            # Move to the next pair of nodes
+            prev = first_node
+            head = first_node.next
 
         return dummy.next
+
 
 def list_to_linked_list(items: List[int]) -> Optional[ListNode]:
     if not items:
