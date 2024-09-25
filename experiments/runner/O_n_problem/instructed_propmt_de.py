@@ -1,7 +1,7 @@
 #################################
 
-# given three <question, answer> given in the report
-# based on the examples, please give me answer solution for the question
+# Instructed Prompt:
+
 #################################
 
 from typing import Optional, List
@@ -13,31 +13,30 @@ class ListNode:
         self.val = val
         self.next = next
 
+
 class Solution:
     def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        # Create a dummy node to simplify the edge case
+        # Create a dummy node to simplify the swapping process
         dummy = ListNode(0)
         dummy.next = head
         prev = dummy
-
-        while head and head.next:
-            # Store the nodes to be swapped
-            first_node = head
-            second_node = head.next
-
+        
+        while prev.next and prev.next.next:
+            # Nodes to be swapped
+            first_node = prev.next
+            second_node = prev.next.next
+            
             # Swap the nodes
             prev.next = second_node
             first_node.next = second_node.next
             second_node.next = first_node
-
-            # Move to the next pair of nodes
+            
+            # Reinitializing the prev for next swap
             prev = first_node
-            head = first_node.next
-
-        # Return the head of the modified list
+        
         return dummy.next
 
-   # Helper function to convert a list to a linked list
+# Helper function to convert a list to a linked list
 def list_to_linked_list(items: List[int]) -> Optional[ListNode]:
     if not items:
         return None
@@ -68,3 +67,5 @@ if __name__ == '__main__':
         swapped_head = Solution().swapPairs(head)
 
         result_list = linked_list_to_list(swapped_head)
+
+

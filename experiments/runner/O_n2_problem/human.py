@@ -46,5 +46,5 @@ class Solution:
 if __name__ == '__main__':
     arr1 = [93, 93923, 786, 986]
     arr2 = [9392, 939321, 9392356]
-    for i in range(1_000):
+    for i in range(1_000_000):
         max_length = Solution().longestCommonPrefix(arr1, arr2)

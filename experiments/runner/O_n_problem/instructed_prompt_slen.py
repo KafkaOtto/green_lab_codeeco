@@ -16,9 +16,25 @@ class ListNode:
 
 class Solution:
     def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        """
-        getting solution from llama3.1
-        """
+        dummy = ListNode(0)
+        dummy.next = head
+        prev = dummy
+
+        while head and head.next:
+            # Nodes to be swapped
+            first_node = head
+            second_node = head.next
+
+            # Swapping
+            prev.next = second_node
+            first_node.next = second_node.next
+            second_node.next = first_node
+
+            # Reinitializing the head and prev for next swap
+            prev = first_node
+            head = first_node.next
+
+        return dummy.next
 
 # Helper function to convert a list to a linked list
 def list_to_linked_list(items: List[int]) -> Optional[ListNode]:
@@ -42,7 +58,7 @@ def linked_list_to_list(head: Optional[ListNode]) -> List[int]:
 
 if __name__ == '__main__':
 
-    for i in range(1_000):
+    for i in range(10_000_000):
 
         input_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 

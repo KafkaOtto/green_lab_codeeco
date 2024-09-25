@@ -62,7 +62,7 @@ class RunnerConfig:
         run_factor = FactorModel("run_number", ['r1', 'r2', 'r3'])
         problem_factor = FactorModel("problem", ['test'])
         #problem_factor = FactorModel("problem", ['longest_common_str', 'remove_duplicates', 'sorting_an_array'])
-        prompt_factor = FactorModel("prompts", ['human', 'base_prompt', 'few_shot_prompt', 'instructed_prompt'])
+        prompt_factor = FactorModel("prompts", ['human', 'base_prompt', 'few_shot_prompt', 'instructed_prompt_slen','instructed_prompt_llen','instructed_prompt_de'])
         self.run_table_model = RunTableModel(
             factors=[run_factor, prompt_factor, problem_factor],
             data_columns=['execution_time', 'cpu_usage', 'memory_usage', 'energy_usage'],
