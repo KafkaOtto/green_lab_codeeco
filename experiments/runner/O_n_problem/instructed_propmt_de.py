@@ -16,25 +16,25 @@ class ListNode:
 
 class Solution:
     def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        if not head or not head.next:
+            return head
+            
         # Create a dummy node to simplify the swapping process
         dummy = ListNode(0)
         dummy.next = head
         prev = dummy
         
-        while prev.next and prev.next.next:
-            # Nodes to be swapped
-            first_node = prev.next
-            second_node = prev.next.next
-            
+        while head and head.next:
+            # Store the nodes to be swapped
+            first_node = head
+            second_node = head.next
             # Swap the nodes
             prev.next = second_node
             first_node.next = second_node.next
             second_node.next = first_node
-            
-            # Reinitializing the prev for next swap
+            # Move to the next pair of nodes
             prev = first_node
-        
-        return dummy.next
+            head = first_node.next
 
 # Helper function to convert a list to a linked list
 def list_to_linked_list(items: List[int]) -> Optional[ListNode]:
