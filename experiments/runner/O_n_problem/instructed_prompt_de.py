@@ -58,7 +58,7 @@ def linked_list_to_list(head: Optional[ListNode]) -> List[int]:
 
 if __name__ == '__main__':
 
-    for i in range(10_000_000):
+    for i in range(30_000_000):
 
         input_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
