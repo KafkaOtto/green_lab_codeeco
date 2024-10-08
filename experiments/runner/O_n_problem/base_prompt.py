@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     input_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-    for i in range(30_000_000):
+    for i in range(25_000_000):
 
         head = list_to_linked_list(input_list)
 
