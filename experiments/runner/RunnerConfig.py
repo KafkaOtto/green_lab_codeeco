@@ -118,7 +118,7 @@ class RunnerConfig:
         
         
         self.profiler.wait()
-	output.console_log("Waiting for profiler stop...")
+	#output.console_log("Waiting for profiler stop...")
 
     def stop_run(self, context: RunnerContext) -> None:
         """Perform any activity here required for stopping the run.
