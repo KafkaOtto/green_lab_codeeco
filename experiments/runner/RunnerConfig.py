@@ -23,7 +23,7 @@ class RunnerConfig:
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name:                       str             = "my_runner_experiment"
+    name:                       str             = "test_runner_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -60,12 +60,12 @@ class RunnerConfig:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
         #run_factor = FactorModel("run_number", ['r'+str(i) for i in range(1, 3)])
-        problem_factor = FactorModel("problem", ['O_n_problem'])
-        prompt_factor = FactorModel("prompts", ['human','base_prompt'])
+        problem_factor = FactorModel("problem", ['O_n_problem', 'O_nlogn_problem', 'O_n2_problem'])
+        prompt_factor = FactorModel("prompts", ['human','base_prompt','few_shot_prompt','instructed_prompt_slen','instructed_prompt_llen','instructed_prompt_de'])
         self.run_table_model = RunTableModel(
             factors = [problem_factor, prompt_factor], 
             data_columns=['execution_time', 'cpu_usage', 'memory_usage', 'energy_consumption'], 
-            repetitions = 3,
+            repetitions = 1,
             shuffle=True
             )
         return self.run_table_model
@@ -154,7 +154,7 @@ class RunnerConfig:
                 'execution_time': round((df['Time'].iloc[-1] - df['Time'].iloc[0])/1000, 3),
                 'cpu_usage'    : round((all_data/nb_point).mean(), 3),     
                 'memory_usage'    : round(df['USED_MEMORY'].sum()*100/df['TOTAL_MEMORY'].sum(), 3),
-                'energy_consumption': df['PACKAGE_ENERGY (J)'].iloc[-1] - df['PACKAGE_ENERGY (J)'].iloc[0]
+                'energy_consumption': round(df['PACKAGE_ENERGY (J)'].iloc[-1] - df['PACKAGE_ENERGY (J)'].iloc[0], 3)
         }
         return run_data
 
