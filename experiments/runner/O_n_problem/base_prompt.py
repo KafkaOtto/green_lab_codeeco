@@ -56,12 +56,18 @@ def linked_list_to_list(head: Optional[ListNode]) -> List[int]:
     return result
 
 if __name__ == '__main__':
-    input_list = [28, 3, 11, 19, 17, 4, 9, 39, 34, 14, 42, 37, 35, 18, 15, 24, 41, 49, 45, 47, 5, 12, 23, 40, 46, 8, 31, 6, 1, 29, 13, 43, 30, 22, 21, 2, 7, 48, 50, 36, 32, 25, 38, 26, 33, 20, 27, 44, 16, 10]
 
-    for i in range(800_000):
+    import time
+    start = time.process_time()
 
+    with open('arr1.txt', 'r') as f:
+        input_list = [int(x) for x in f.read().split()]
+
+    print('Time1: ', time.process_time() - start)
+
+    for i in range(12_000):
         head = list_to_linked_list(input_list)
-
         swapped_head = Solution().swapPairs(head)
-
         result_list = linked_list_to_list(swapped_head)
+
+    print('Time2: ', time.process_time() - start)

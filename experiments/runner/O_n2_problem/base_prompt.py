@@ -25,7 +25,16 @@ class Solution:
         return max_prefix
 
 if __name__ == '__main__':
-    arr1 = [42, 47, 1, 26, 34, 12, 13, 46, 6, 16, 10, 49, 8, 24, 35, 2, 17, 21, 39, 41, 14, 32, 29, 25, 27, 45, 20, 9, 3, 36, 28, 33, 7, 43, 11, 5, 38, 30, 37, 50, 19, 18, 40, 22, 15, 23, 31, 44, 4, 48]
-    arr2 = [1, 26, 34, 12, 13, 46, 6, 16, 10, 49, 8, 24, 35, 2, 17, 21, 39, 41, 14, 32, 29, 25, 27, 45, 20, 9, 3, 36, 28, 33, 7, 43, 11, 5, 38, 30, 37, 50, 19, 18, 40, 22, 15, 23, 31, 44, 4, 48, 84, 67]
-    for i in range(800_000):
-        max_length = Solution().longestCommonPrefix(arr1, arr2)
+    # import time
+    # start = time.process_time()
+
+    with open('arr1.txt', 'r') as f:
+        arr1 = [int(x) for x in f.read().split()]
+    with open('arr2.txt', 'r') as f:
+        arr2 = [int(x) for x in f.read().split()]
+
+    # print('Time1: ', time.process_time() - start)
+
+    max_length = Solution().longestCommonPrefix(arr1, arr2)
+
+    # print('Time2: ', time.process_time() - start)
