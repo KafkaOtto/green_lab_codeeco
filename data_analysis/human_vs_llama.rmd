@@ -1,0 +1,117 @@
+r--- title: "R Notebook for Checking Normalization" output: html_notebook ---
+
+# Define Variable
+
+```{r Define Variable}
+run_table_path = '../experiments/runner/experiments/test_runner_experiment/run_table.csv'
+```
+
+# Environment Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, results = 'hide')
+```
+
+# Install Packages
+
+```{r Install Packages}
+if (!require("ggplot2")) install.packages("ggplot2")
+library(ggplot2)
+
+if (!require("tidyverse")) install.packages("tidyverse")
+library(tidyverse)
+
+if (!require("dplyr")) install.packages("dplyr")
+library(dplyr)
+
+if (!require("bestNormalize")) install.packages("bestNormalize")
+library(bestNormalize)
+
+if (!require("xtable")) install.packages("xtable")
+library(xtable)
+```
+
+# Analysis
+
+## Load data and transform relevant variable into factors
+
+```{r setup}
+cat("Loading Data:","\n")
+energy_df <- read.csv(run_table_path)
+energy_df$problem = as.factor(energy_df$problem)
+energy_df$prompts = as.factor(energy_df$prompts)
+energy_df$run_number <- gsub(".*_(\\d+)$", "\\1", energy_df$X__run_id)
+energy_df$run_number = as.factor(energy_df$run_number)
+str(energy_df)
+```
+
+## Draw histogram
+
+```{r, message=FALSE, warning=FALSE, results='hide'}
+energy_df %>%
+  group_by(problem, prompts) %>%
+  group_split() %>%
+  lapply(function(group_data) {
+    hist(group_data$energy_consumption, 
+         main = unique(group_data$problem), 
+         xlab = "Energy consumption")
+  })
+```
+
+```{r}
+energy_df %>%
+  group_by(problem, prompts) %>%
+  summarize(n = n(),
+            stest = shapiro.test(energy_consumption)$p.value)
+```
+
+## Mean Mode Std
+
+```{r energy stats table}
+# Create summary statistics with mean, variance, standard deviation, max, and min
+summary_stats <- energy_df %>%
+  group_by(problem, prompts) %>%
+  summarise(
+    
+    energy_avg = mean(energy_consumption),
+    energy_var = var(energy_consumption),
+    energy_sd = sd(energy_consumption),
+    energy_min = min(energy_consumption),
+    energy_max = max(energy_consumption),
+    
+    .groups = 'drop'
+  )
+
+# Create and format the xtable
+summary_table <- xtable(summary_stats,
+                       caption = "Summary Statistics for Energy Consumption by problem and prompts",
+                       digits = c(0, 0, 0, 2, 2, 2, 2, 2))
+
+# Print the table (you can adjust the type of output as needed)
+print(summary_table, 
+      include.rownames = TRUE,
+      floating = FALSE)
+
+```
+
+## Check Normalization
+
+```{r, message=FALSE, warning=FALSE, results='hide'}
+
+energy_df$norm_energy_consumption = bestNormalize(energy_df$energy_consumption)$x.t
+energy_df %>%
+  group_by(problem, prompts) %>%
+  group_split() %>%
+  lapply(function(group_data) {
+    hist(group_data$norm_energy_consumption, 
+         main = c(unique(group_data$problem), unique(group_data$prompts)), 
+         xlab = "Energy consumption")
+  })
+```
+
+```{r}
+energy_df %>%
+  group_by(problem, prompts) %>%
+  summarize(n = n(),
+            stest = shapiro.test(norm_energy_consumption)$p.value)
+```
