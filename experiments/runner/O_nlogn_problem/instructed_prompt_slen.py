@@ -31,9 +31,9 @@ class Solution:
 
 
 if __name__ == '__main__':
-    import time
+    # import time
 
-    s_t = time.process_time()
+    # s_t = time.process_time()
 
     intervals = []
     with open('arr1.txt', 'r') as f:
@@ -41,9 +41,9 @@ if __name__ == '__main__':
             start, end = map(int, line.split())
             intervals.append([start, end])
 
-    print('Read time: ', time.process_time() - s_t)
+    # print('Read time: ', time.process_time() - s_t)
 
     for i in range(42_000):
         test_solution = Solution().merge(intervals)
 
-    print('Read time: ', time.process_time() - s_t)
+    # print('Read time: ', time.process_time() - s_t)

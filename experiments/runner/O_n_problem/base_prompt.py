@@ -57,17 +57,17 @@ def linked_list_to_list(head: Optional[ListNode]) -> List[int]:
 
 if __name__ == '__main__':
 
-    import time
-    start = time.process_time()
+    # import time
+    # start = time.process_time()
 
     with open('arr1.txt', 'r') as f:
         input_list = [int(x) for x in f.read().split()]
 
-    print('Time1: ', time.process_time() - start)
+    # print('Time1: ', time.process_time() - start)
 
     for i in range(12_000):
         head = list_to_linked_list(input_list)
         swapped_head = Solution().swapPairs(head)
         result_list = linked_list_to_list(swapped_head)
 
-    print('Time2: ', time.process_time() - start)
+    # print('Time2: ', time.process_time() - start)
