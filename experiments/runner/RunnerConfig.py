@@ -23,7 +23,7 @@ class RunnerConfig:
 
     # ================================ USER SPECIFIC CONFIG ================================
     """The name of the experiment."""
-    name:                       str             = "test_runner_experiment"
+    name:                       str             = "new_runner_experiment"
 
     """The path in which Experiment Runner will create a folder with the name `self.name`, in order to store the
     results from this experiment. (Path does not need to exist - it will be created if necessary.)
@@ -59,13 +59,13 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        #run_factor = FactorModel("run_number", ['r'+str(i) for i in range(1, 3)])
+        run_factor = FactorModel("run_number", ['r'+str(i) for i in range(0, 19)])
         problem_factor = FactorModel("problem", ['O_n_problem', 'O_nlogn_problem', 'O_n2_problem'])
         prompt_factor = FactorModel("prompts", ['human','base_prompt','few_shot_prompt','instructed_prompt_slen','instructed_prompt_llen','instructed_prompt_de'])
         self.run_table_model = RunTableModel(
-            factors = [problem_factor, prompt_factor], 
+            factors = [run_factor, problem_factor, prompt_factor],
             data_columns=['execution_time', 'cpu_usage', 'memory_usage', 'energy_consumption'], 
-            repetitions = 1,
+            # repetitions = 2,
             shuffle=True
             )
         return self.run_table_model
@@ -96,7 +96,7 @@ class RunnerConfig:
         
         problem = context.run_variation["problem"]
         prompt_type = context.run_variation["prompts"]   
-        profiler_cmd = f'sudo energibridge \
+        profiler_cmd = f'energibridge \
                         --interval 200 \
                         --output {context.run_dir / "energibridge.csv"}\
                         --summary python experiments/runner/{problem}/{prompt_type}.py'
@@ -154,7 +154,8 @@ class RunnerConfig:
                 'execution_time': round((df['Time'].iloc[-1] - df['Time'].iloc[0])/1000, 3),
                 'cpu_usage'    : round((all_data/nb_point).mean(), 3),     
                 'memory_usage'    : round(df['USED_MEMORY'].sum()*100/df['TOTAL_MEMORY'].sum(), 3),
-                'energy_consumption': round(df['PACKAGE_ENERGY (J)'].iloc[-1] - df['PACKAGE_ENERGY (J)'].iloc[0], 3)
+                # 'energy_consumption': round(df['PACKAGE_ENERGY (J)'].iloc[-1] - df['PACKAGE_ENERGY (J)'].iloc[0], 3)
+                'energy_usage': round(df['SYSTEM_POWER (Watts)'].iloc[-1] - df['SYSTEM_POWER (Watts)'].iloc[0], 3)
         }
         return run_data
 

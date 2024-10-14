@@ -61,7 +61,7 @@ if __name__ == '__main__':
     # import time
     # start = time.process_time()
 
-    with open('arr1.txt', 'r') as f:
+    with open('./experiments/runner/O_n_problem/arr1.txt', 'r') as f:
         input_list = [int(x) for x in f.read().split()]
 
     # print('Time1: ', time.process_time() - start)

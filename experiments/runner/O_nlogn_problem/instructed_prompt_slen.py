@@ -36,7 +36,7 @@ if __name__ == '__main__':
     # s_t = time.process_time()
 
     intervals = []
-    with open('arr1.txt', 'r') as f:
+    with open('./experiments/runner/O_nlogn_problem/arr1.txt', 'r') as f:
         for line in f:
             start, end = map(int, line.split())
             intervals.append([start, end])

@@ -28,9 +28,9 @@ if __name__ == '__main__':
     # import time
     # start = time.process_time()
 
-    with open('arr1.txt', 'r') as f:
+    with open('./experiments/runner/O_n2_problem/arr1.txt', 'r') as f:
         arr1 = [int(x) for x in f.read().split()]
-    with open('arr2.txt', 'r') as f:
+    with open('./experiments/runner/O_n2_problem/arr2.txt', 'r') as f:
         arr2 = [int(x) for x in f.read().split()]
 
     # print('Time1: ', time.process_time() - start)

@@ -40,9 +40,9 @@ if __name__ == '__main__':
     # import timeit
 
     # start = timeit.default_timer()
-    with open('arr1.txt', 'r') as f:
+    with open('./experiments/runner/O_n2_problem/arr1.txt', 'r') as f:
         arr1 = [int(x) for x in f.read().split()]
-    with open('arr2.txt', 'r') as f:
+    with open('./experiments/runner/O_n2_problem/arr2.txt', 'r') as f:
         arr2 = [int(x) for x in f.read().split()]
     # stop = timeit.default_timer()
 
