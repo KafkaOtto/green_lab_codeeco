@@ -341,3 +341,21 @@ run_166_repetition_0,DONE,r9,O_n_problem,instructed_prompt_llen,249.912,13.919,6
 run_60_repetition_0,DONE,r3,O_nlogn_problem,human,537.701,15.494,62.155,52.06
 run_167_repetition_0,DONE,r9,O_n_problem,instructed_prompt_de,213.618,14.474,63.936,46.923
 run_226_repetition_0,DONE,r12,O_nlogn_problem,instructed_prompt_llen,320.507,14.276,63.026,51.289
+run_347_repetition_0,DONE,r20,O_n_problem,instructed_prompt_de,203.288,12.097,68.048,42.873
+run_342_repetition_0,DONE,r20,O_n_problem,human,230.849,14.525,68.186,44.995
+run_356_repetition_0,DONE,r20,O_n2_problem,few_shot_prompt,187.168,21.224,68.346,63.368
+run_357_repetition_0,DONE,r20,O_n2_problem,instructed_prompt_slen,189.573,21.704,66.285,67.324
+run_343_repetition_0,DONE,r20,O_n_problem,base_prompt,245.849,19.181,68.448,47.321
+run_350_repetition_0,DONE,r20,O_nlogn_problem,few_shot_prompt,296.757,15.361,67.61,49.979
+run_348_repetition_0,DONE,r20,O_nlogn_problem,human,554.475,16.569,67.699,45.076
+run_359_repetition_0,DONE,r20,O_n2_problem,instructed_prompt_de,181.953,12.376,66.207,49.314
+run_352_repetition_0,DONE,r20,O_nlogn_problem,instructed_prompt_llen,348.475,18.104,67.103,45.617
+run_345_repetition_0,DONE,r20,O_n_problem,instructed_prompt_slen,226.783,12.68,66.423,38.104
+run_349_repetition_0,DONE,r20,O_nlogn_problem,base_prompt,331.73,15.903,65.953,44.779
+run_351_repetition_0,TODO,r20,O_nlogn_problem,instructed_prompt_slen, , , ,
+run_358_repetition_0,DONE,r20,O_n2_problem,instructed_prompt_llen,197.831,23.631,67.138,55.104
+run_344_repetition_0,DONE,r20,O_n_problem,few_shot_prompt,223.769,15.007,65.459,38.541
+run_354_repetition_0,DONE,r20,O_n2_problem,human,0.203,6.43,65.348,29.248
+run_355_repetition_0,DONE,r20,O_n2_problem,base_prompt,266.372,12.508,65.267,42.133
+run_353_repetition_0,DONE,r20,O_nlogn_problem,instructed_prompt_de,326.863,13.887,66.123,39.73
+run_346_repetition_0,DONE,r20,O_n_problem,instructed_prompt_llen,239.956,13.868,67.267,31.821
