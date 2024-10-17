@@ -154,8 +154,7 @@ class RunnerConfig:
                 'execution_time': round((df['Time'].iloc[-1] - df['Time'].iloc[0])/1000, 3),
                 'cpu_usage'    : round((all_data/nb_point).mean(), 3),     
                 'memory_usage'    : round(df['USED_MEMORY'].sum()*100/df['TOTAL_MEMORY'].sum(), 3),
-                # 'energy_consumption': round(df['PACKAGE_ENERGY (J)'].iloc[-1] - df['PACKAGE_ENERGY (J)'].iloc[0], 3)
-                'energy_usage': round(df['SYSTEM_POWER (Watts)'].iloc[-1] - df['SYSTEM_POWER (Watts)'].iloc[0], 3)
+                'energy_usage': round(df['SYSTEM_POWER (Watts)'].mean(), 3)
         }
         return run_data
 
