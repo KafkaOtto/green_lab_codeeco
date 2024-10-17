@@ -3,7 +3,8 @@ r--- title: "R Notebook for Checking Normalization" output: html_notebook ---
 # Define Variable
 
 ```{r Define Variable}
-run_table_path = '../experiments/runner/experiments/test_runner_experiment/run_table.csv'
+# run_table_path = 'run_table_complete.csv'
+run_table_path = '../experiments/runner/experiments/new_runner_experiment/run_table.csv'
 ```
 
 # Environment Setup
@@ -43,6 +44,10 @@ energy_df$prompts = as.factor(energy_df$prompts)
 energy_df$run_number <- gsub(".*_(\\d+)$", "\\1", energy_df$X__run_id)
 energy_df$run_number = as.factor(energy_df$run_number)
 str(energy_df)
+energy_df <- energy_df %>%
+  mutate(energy_consumption = energy_usage * execution_time)
+human_base_df <- subset(energy_df, prompts %in% c("human", "base_prompt"))
+str(human_base_df)
 ```
 
 ## Draw histogram
@@ -114,4 +119,25 @@ energy_df %>%
   group_by(problem, prompts) %>%
   summarize(n = n(),
             stest = shapiro.test(norm_energy_consumption)$p.value)
+```
+```{r draw histogram based on mean value}
+# Assuming 'energy_efficiency' is the column representing energy efficiency in your dataset
+# Adjust the column name as needed
+
+# Plot histograms comparing energy efficiency for each problem
+mean_human_base_df <- human_base_df %>%
+  group_by(problem, prompts) %>%
+  summarise(mean_energy_consumption = mean(energy_consumption, na.rm = TRUE), .groups = 'drop')
+mean_human_base_df <- mean_human_base_df %>%
+  mutate(log_mean_energy_consumption = log(mean_energy_consumption))
+
+str(mean_human_base_df)
+ggplot(mean_human_base_df, aes(x = problem, y = mean_energy_consumption, fill = prompts)) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +
+  labs(title = "Log-Transformed Mean Energy Efficiency by Problem",
+       x = "Problem",
+       y = "Log-Transformed Mean Energy Efficiency") +
+  scale_fill_manual(values = c("human" = "blue", "base_prompt" = "orange")) +
+  theme_minimal()
+
 ```
