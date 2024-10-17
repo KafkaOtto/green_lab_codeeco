@@ -1,7 +1,0 @@
-__run_id,__done,problem,prompts,execution_time,linux_time,cpu_usage,memory_usage,energy_usage,energy_consumption
-run_1_repetition_0,DONE,O_n_problem,base_prompt,68.244,68.13,6.567,31.115,26.819,1328.6975708007812
-run_0_repetition_0,DONE,O_n_problem,human,71.646,71.55,6.608,30.953,18.866,1360.7457885742115
-run_0_repetition_2,DONE,O_n_problem,human,70.848,70.78,6.565,30.405,27.137,1332.6298828124927
-run_1_repetition_1,DONE,O_n_problem,base_prompt,69.253,69.17,6.561,30.372,26.188,1298.3832397460938
-run_1_repetition_2,DONE,O_n_problem,base_prompt,69.04,68.92,6.974,30.131,18.94,1316.9749755859375
-run_0_repetition_1,DONE,O_n_problem,human,73.25,73.12,6.735,30.242,22.768,1307.345458984375
