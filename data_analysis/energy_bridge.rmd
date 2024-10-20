@@ -1,0 +1,206 @@
+r--- title: "Check the figure for EnergyBridge ---
+
+# Define Variable
+```{r Define Variable}
+# run_table_path = 'run_table_complete.csv'
+run_file_path = '../experiments/runner/experiments/new_runner_experiment/run_table.csv'
+energy_path = '../experiments/runner/experiments/new_runner_experiment'
+```
+
+# Environment Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, results = 'hide')
+```
+
+# Install Packages
+
+```{r Install Packages}
+if (!require("ggplot2")) install.packages("ggplot2")
+library(ggplot2)
+
+if (!require("tidyverse")) install.packages("tidyverse")
+library(tidyverse)
+
+if (!require("dplyr")) install.packages("dplyr")
+library(dplyr)
+
+if (!require("bestNormalize")) install.packages("bestNormalize")
+library(bestNormalize)
+
+if (!require("xtable")) install.packages("xtable")
+library(xtable)
+```
+
+# Define Function
+```{r Install Packages}
+avg_metric <- function(df, metric_name) {
+  all_data <- NULL
+  nb_point <- 0
+  
+  for (metric in colnames(df)[-1]) {
+    if (grepl(metric_name, metric)) {
+      nb_point <- nb_point + 1
+      if (is.null(all_data)) {
+        all_data <- df[[metric]]
+      } else {
+        all_data <- all_data + df[[metric]]
+      }
+    }
+  }
+  return(all_data / nb_point)
+}
+```
+
+```{r average metrics}
+avg_metric <- function(df, metric_name) {
+  all_data <- NULL
+  nb_point <- 0
+  
+  for (metric in colnames(df)[-1]) {
+    if (grepl(metric_name, metric)) {
+      nb_point <- nb_point + 1
+      if (is.null(all_data)) {
+        all_data <- df[[metric]]
+      } else {
+        all_data <- all_data + df[[metric]]
+      }
+    }
+  }
+  return(all_data / nb_point)
+}
+```
+
+```{r generate chart}
+generate_metric_charts <- function(csv_file) {
+  if (!file.exists(csv_file)) {
+    stop(paste(csv_file, "does not exist"))
+  }
+  
+  df <- read.csv(csv_file)
+  key <- "PACKAGE_ENERGY..W."
+  
+  if ("CPU_ENERGY..J." %in% colnames(df)) {
+    key <- "CPU_ENERGY..J."
+  }
+  if ("PACKAGE_ENERGY..J." %in% colnames(df)) {
+    key <- "PACKAGE_ENERGY..J."
+  }
+  if ("SYSTEM_POWER..Watts." %in% colnames(df)) {
+    key <- "SYSTEM_POWER..Watts."
+  }
+  
+  data <- df[[key]]
+  
+  if (!(key %in% c("CPU_POWER..Watts.", "SYSTEM_POWER..Watts."))) {
+    original_key <- paste0(key, "_original")
+    df[[original_key]] <- df[[key]]
+    
+    for (i in seq_along(data)) {
+      if (i > 1 && !is.na(df[[original_key]][i]) && !is.na(df[[original_key]][i-1])) {
+        # Calculate difference with the previous value and convert to watts
+        data[i] <- (data[i] - df[[original_key]][i-1]) * (1000 / df$Delta[i])
+      } else {
+        data[i] <- 0
+      }
+    }
+  }
+  
+  all_data <- data.frame(
+    Time = seq_along(data),
+    CPU_POWER.Watts = data,
+    Metric = "CPU Power (Watts)"
+  )
+  
+  # Additional data for secondary metrics
+  temp_data <- data.frame(
+    Time = seq_along(data),
+    Value = avg_metric(df, "CPU_TEMP"),
+    Metric = "CPU Temp (C)"
+  )
+  
+  usage_data <- data.frame(
+    Time = seq_along(data),
+    Value = avg_metric(df, "CPU_USAGE"),
+    Metric = "CPU Usage (%)"
+  )
+  
+  memory_data <- data.frame(
+    Time = seq_along(data),
+    Value = (df$USED_MEMORY * 100) / df$TOTAL_MEMORY,
+    Metric = "Used Memory (%)"
+  )
+  
+  # Combine all data
+  secondary_data <- rbind(temp_data, usage_data, memory_data)
+  
+  # Plotting
+  p <- ggplot(all_data, aes(x = Time, y = CPU_POWER.Watts, color = Metric)) +
+    geom_line(size = 1) +
+    ylab("Watts") +
+    labs(color = "Metric") +
+    theme_minimal() +
+    theme(
+      axis.title = element_text(size = 12),       # Axis title size
+      axis.text = element_text(size = 10),        # Axis text (tick labels) size
+      legend.text = element_text(size = 10),      # Legend text size
+      legend.title = element_text(size = 12),     # Legend title size
+      legend.position = c(0.85, 0.85),            # Position of the legend (top right corner)
+      legend.justification = c(1, 1)              # Adjust the justification to align legend properly
+    )
+  
+  # Adding secondary metrics
+  p <- p + 
+    geom_line(data = secondary_data, aes(x = Time, y = Value, color = Metric), size = 1) +
+    scale_y_continuous(
+      sec.axis = sec_axis(~ ., name = "Secondary Metrics (%)")
+    )
+  
+  # Display the plot
+  print(p)
+}
+```
+
+```{r show chart}
+plot_selected_runs <- function(csv_file, base_path) {
+  # Read the main CSV file
+  df <- read.csv(csv_file)
+  
+  # Filter for O_n2_problem and specified prompts
+  selected_rows <- df %>%
+    filter(problem == "O_n2_problem" & prompts %in% c("human", "base_prompt"))
+  
+  # Check if there are at least two rows to select
+  if (nrow(selected_rows) < 2) {
+    stop("Not enough rows with the specified conditions.")
+  }
+  
+  # Randomly sample two rows
+  sampled_rows <- selected_rows %>% sample_n(2)
+  
+  # Iterate over the sampled rows and generate plots
+  for (i in 1:nrow(sampled_rows)) {
+    # Get the directory name (run_id)
+    run_id <- sampled_rows[[1]][i]
+    
+    print(run_id)
+    
+    # Construct the CSV file path (assuming data is stored in run_id directory)
+    metric_file <- file.path(base_path, run_id, "energibridge.csv") # Assuming metrics.csv as the filename
+    
+    print(metric_file)
+    
+    # Plot using the previously defined generate_metric_charts function
+    if (file.exists(metric_file)) {
+      cat(paste("Generating plot for:", run_id, "\n"))
+      generate_metric_charts(metric_file)
+    } else {
+      cat(paste("File does not exist for:", run_id, "\n"))
+    }
+  }
+}
+```
+
+```{r draw plot}
+plot_selected_runs(run_file_path, energy_path)
+```
