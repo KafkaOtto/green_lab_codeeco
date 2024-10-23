@@ -1,0 +1,119 @@
+# Overview
+The Software Carbon Intensity (SCI) is a rate, carbon emissions per one unit of R. The equation used to calculate the SCI value of a software system is:
+
+`SCI = ((E * I) + M) per R`
+
+Where:
+
+- E = Energy consumed by a software system
+- I = Location-based marginal carbon emissions
+- M = Embodied emissions of a software system
+- R = Functional unit (e.g. carbon per additional user, API-call, ML job, etc) 
+
+All the elements in the SCI equation scale by the same functional unit of “R”
+
+# Definition
+
+## (What) Software boundary
+*Describe the components that are included in the software systems, if any major components are not included then please provide **reasons for exclusion**.*
+
+### Included
+
+All RunnerConfig experiment from python main programs
+
+## (Scale) Functional Unit
+
+*Describe the [functional unit](https://github.com/Green-Software-Foundation/software_carbon_intensity/blob/main/Software_Carbon_Intensity/Software_Carbon_Intensity_Specification.md#functional-unit-r) that best controls the scaling of the software system.*
+
+The choice of functional unit applies to all components in your software boundary. 
+
+R is one command of `python3 experiment-runner/ experiments/runner/RunnerConfig.py` over a 1 hour period
+
+## (How) Quantification method
+
+*For each software component in your software boundary, decide whether you are going to **measure** using real-world data or **calculate** an estimate via models, provide a reason and any useful details for each choice.
+*
+
+
+# Formulas
+
+## Energy (`E`)
+The Quantification method used for calculating energy value is **Calculate**. We are measuring CPU utilization of the app servers and then using a model based on the Thermal Design Power (TDP) of the processors, number of cores etc to **estimate** the power consumption.
+
+The equation used to model the energy consumption is:
+
+P[kwH] = (Power consumed by CPU or Pc Number of cores + Power consumed by Memory or Pr + Power consumed by GPU or Pg Number of GPUs)/1000
+
+* CPU Utilization doesn’t scale linearly with power consumption, we will use the power curve as described in the [SCI Data Project “[E] Energy Estimation from Utilization Model” model](https://docs.google.com/spreadsheets/d/1Viv94rMKH-fJrfD9Nn9_qkiAg1PDfIfJUAHRX9slG7A/edit#gid=526989613)
+* TDP of server used in Azure App server Premium configuration (P2v2 ) -2nd Generation Intel® Xeon® Platinum 8272CL (Cascade Lake)= 205 W ( [https://ark.intel.com/content/www/us/en/ark/products/192482/intel-xeon-platinum-8270-processor-35-75m-cache-2-70-ghz.html](https://ark.intel.com/content/www/us/en/ark/products/192482/intel-xeon-platinum-8270-processor-35-75m-cache-2-70-ghz.html))
+* From specs, we found that Power consumed by 4GB memory is close to 1.45 W and that by 8 GB memory is approximately 2.45 W. Also from this [article](https://medium.com/teads-engineering/estimating-aws-ec2-instances-power-consumption-c9745e347959) we can consider power consumed is approx 0.38 W/GB or close to 2.6 Watts.Since the energy values for memory are much lower than the calculated energy values for processors or CPUs, we consider these values negligible. Pr ~0
+* No GPU was used hence Pg ~0
+
+### Carbon Intensity (`I`)
+
+* We will use regional yearly averages.
+* The region the application was run in was the Netherlands
+* We will source the Carbon Intensity from [[I] Carbon intensity of electricity generation]https://ourworldindata.org/grapher/carbon-intensity-electricity?tab=chart&country=~NLD).
+
+
+### Embodied Carbon (`M`)
+
+The equation to calculate `M = TE * (TR/EL) * (RR/TR)`
+
+Where:
+
+* TE = Total Embodied Emissions, the sum of LCA emissions for all hardware components associated with the database server.
+* TR = Time Reserved, the length of time the hardware is reserved for use by the software.
+* EL = Expected Lifespan, the anticipated time that the equipment will be installed.
+* RR = Resources Reserved, the number of resources reserved for use by the software.
+* TR = Total Resources, the total number of resources available.
+
+For this component:
+
+* TE: The PC is Macbook Pro 16" (2019) with 394 kg CO2e. This data was sourced from the [CLaptop carbon footprints](https://github.com/rarecoil/laptop-co2e).
+* TR: Sum of execution time.
+* EL: We will assume a 4 day lifespan or 24 hrs.
+* RR: 12 vCPUs was used
+* TR: 12 vCPUs was in the PC
+
+# Execution
+
+```{r calculate carbon intensity}
+run_table_path = '../experiments/runner/experiments/new_runner_experiment/run_table.csv'
+
+```
+
+```{r Install Packages}
+```
+
+```{r setup}
+cat("Loading Data:","\n")
+data <- read.csv(run_table_path)
+```
+
+```{r energy}
+# energy = average energy usage * 1 hour / 1000
+# Calculate the energy consumption in kWh
+data$energy_consumption <- (data$energy_usage * data$execution_time)
+energy <- sum(data$energy_consumption) / 3600000
+print(energy)
+```
+```{r}
+# 268 grams of CO₂ equivalents per kilowatt-hour
+carbon_intensity <- 268
+```
+
+```{r}
+te <- 394
+tir <- sum(data$execution_time) / 3600
+el <- 35040
+rr <- 12
+tor <- 12
+m_carbon <- 394 * (tir / el) * (rr / tor)
+print(tir)
+print(m_carbon)
+```
+```{r}
+sci <- (energy + carbon_intensity) + m_carbon
+print(sci)
+```
