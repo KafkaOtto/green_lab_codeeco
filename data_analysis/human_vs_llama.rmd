@@ -30,6 +30,9 @@ library(bestNormalize)
 
 if (!require("xtable")) install.packages("xtable")
 library(xtable)
+
+if (!require("effsize")) install.packages("effsize")
+library(effsize)
 ```
 
 # Analysis
@@ -119,7 +122,47 @@ energy_df %>%
   group_by(problem, prompts) %>%
   summarize(n = n(),
             stest = shapiro.test(norm_energy_consumption)$p.value)
+``` 
+```{r check wilcos test}
+wilcox_df <- energy_df %>%
+  mutate(energy_consumption = energy_usage * execution_time)
+wilcox_df$problem <- recode(wilcox_df$problem,
+  "O_n_problem" = "O(n)",
+  "O_nlog_problem" = "O(n log n)",
+  "O_n2_problem" = "O(n^2)"
+)
+
+# Step 3: Filter to keep only the rows with prompts "human" or "base_prompt"
+wilcox_df <- subset(wilcox_df, prompts %in% c("human", "base_prompt"))
+
+# Step 4: Apply Mann-Whitney U Test for each problem
+wilcox_results <- wilcox_df %>%
+  group_by(problem) %>%
+  summarise(
+    p_value = wilcox.test(
+      energy_consumption[prompts == "human"],
+      energy_consumption[prompts == "base_prompt"]
+    )$p.value
+  )
+print(wilcox_results)
 ```
+```{r Effect Size Estimation with cliffs delta}
+
+cliffs_delta_results <- wilcox_df %>%
+  group_by(problem) %>%
+  summarise(
+    cliffs_delta = cliff.delta(
+      energy_consumption[prompts == "human"],
+      energy_consumption[prompts == "base_prompt"]
+    )$estimate
+  )
+
+# Print the result
+print(cliffs_delta_results)
+
+```
+```
+
 ```{r draw histogram based on mean value}
 # Assuming 'energy_efficiency' is the column representing energy efficiency in your dataset
 # Adjust the column name as needed
@@ -128,15 +171,23 @@ energy_df %>%
 mean_human_base_df <- human_base_df %>%
   group_by(problem, prompts) %>%
   summarise(mean_energy_consumption = mean(energy_consumption, na.rm = TRUE), .groups = 'drop')
+#mean_human_base_df <- mean_human_base_df %>%
+#  mutate(log_mean_energy_consumption = log(mean_energy_consumption))
 mean_human_base_df <- mean_human_base_df %>%
-  mutate(log_mean_energy_consumption = log(mean_energy_consumption))
+  mutate(problem = recode(problem,
+                          "O_n_problem" = "O(n)",
+                          "O_nlogn_problem" = "O(nlogn)",
+                          "O_n2_problem" = "O(n²)"))
+mean_human_base_df$problem <- factor(mean_human_base_df$problem, levels = c("O(n)", "O(nlogn)", "O(n²)"))
 
 str(mean_human_base_df)
 ggplot(mean_human_base_df, aes(x = problem, y = mean_energy_consumption, fill = prompts)) +
   geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +
-  labs(title = "Log-Transformed Mean Energy Efficiency by Problem",
+  geom_text(aes(label = round(mean_energy_consumption, 2)),
+          position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(title = "Mean Energy Efficiency by Problem",
        x = "Problem",
-       y = "Log-Transformed Mean Energy Efficiency") +
+       y = "Mean Energy Efficiency") +
   scale_fill_manual(values = c("human" = "blue", "base_prompt" = "orange")) +
   theme_minimal()
 

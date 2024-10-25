@@ -33,7 +33,7 @@ library(xtable)
 ```
 
 # Define Function
-```{r Install Packages}
+```{r avg function}
 avg_metric <- function(df, metric_name) {
   all_data <- NULL
   nb_point <- 0
@@ -41,10 +41,14 @@ avg_metric <- function(df, metric_name) {
   for (metric in colnames(df)[-1]) {
     if (grepl(metric_name, metric)) {
       nb_point <- nb_point + 1
+      # Replace NaN values with 0 in the current metric column
+      metric_data <- df[[metric]]
+      metric_data[is.na(metric_data)] <- 0
+      
       if (is.null(all_data)) {
-        all_data <- df[[metric]]
+        all_data <- metric_data
       } else {
-        all_data <- all_data + df[[metric]]
+        all_data <- all_data + metric_data
       }
     }
   }
@@ -52,24 +56,6 @@ avg_metric <- function(df, metric_name) {
 }
 ```
 
-```{r average metrics}
-avg_metric <- function(df, metric_name) {
-  all_data <- NULL
-  nb_point <- 0
-  
-  for (metric in colnames(df)[-1]) {
-    if (grepl(metric_name, metric)) {
-      nb_point <- nb_point + 1
-      if (is.null(all_data)) {
-        all_data <- df[[metric]]
-      } else {
-        all_data <- all_data + df[[metric]]
-      }
-    }
-  }
-  return(all_data / nb_point)
-}
-```
 
 ```{r generate chart}
 generate_metric_charts <- function(csv_file) {
@@ -141,12 +127,11 @@ generate_metric_charts <- function(csv_file) {
     labs(color = "Metric") +
     theme_minimal() +
     theme(
-      axis.title = element_text(size = 12),       # Axis title size
-      axis.text = element_text(size = 10),        # Axis text (tick labels) size
-      legend.text = element_text(size = 10),      # Legend text size
-      legend.title = element_text(size = 12),     # Legend title size
-      legend.position = c(0.85, 0.85),            # Position of the legend (top right corner)
-      legend.justification = c(1, 1)              # Adjust the justification to align legend properly
+      axis.title = element_text(size = 10),       # Axis title size
+      axis.text = element_text(size = 8),        # Axis text (tick labels) size
+      legend.text = element_text(size = 8),      # Legend text size
+      legend.title = element_text(size = 10),     # Legend title size
+      legend.position = "top"
     )
   
   # Adding secondary metrics
@@ -166,22 +151,39 @@ plot_selected_runs <- function(csv_file, base_path) {
   # Read the main CSV file
   df <- read.csv(csv_file)
   
-  # Filter for O_n2_problem and specified prompts
-  selected_rows <- df %>%
-    filter(problem == "O_n2_problem" & prompts %in% c("human", "base_prompt"))
+  # Define the combinations of problems and prompts
+  combinations <- expand.grid(
+    problem = c("O_n2_problem"),
+    prompts = c("human", "base_prompt")
+  )
   
-  # Check if there are at least two rows to select
+  # Initialize an empty data frame to store selected rows
+  selected_rows <- data.frame()
+  
+  # Loop through each combination and randomly select one row
+  for (i in 1:nrow(combinations)) {
+    # Filter the rows that match the current combination
+    temp_df <- df %>%
+      filter(problem == combinations$problem[i] & prompts == combinations$prompts[i])
+    
+    # Check if there is at least one row available
+    if (nrow(temp_df) > 0) {
+      # Randomly sample one row
+      sampled_row <- temp_df %>% sample_n(1)
+      # Add the sampled row to the selected_rows data frame
+      selected_rows <- rbind(selected_rows, sampled_row)
+    }
+  }
+  
+  # Check if we have selected at least one row for each combination
   if (nrow(selected_rows) < 2) {
     stop("Not enough rows with the specified conditions.")
   }
   
-  # Randomly sample two rows
-  sampled_rows <- selected_rows %>% sample_n(2)
-  
-  # Iterate over the sampled rows and generate plots
-  for (i in 1:nrow(sampled_rows)) {
+  # Iterate over the selected rows and generate plots
+  for (i in 1:nrow(selected_rows)) {
     # Get the directory name (run_id)
-    run_id <- sampled_rows[[1]][i]
+    run_id <- selected_rows[[1]][i]
     
     print(run_id)
     
