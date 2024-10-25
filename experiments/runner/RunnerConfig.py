@@ -59,7 +59,7 @@ class RunnerConfig:
     def create_run_table_model(self) -> RunTableModel:
         """Create and return the run_table model here. A run_table is a List (rows) of tuples (columns),
         representing each run performed"""
-        run_factor = FactorModel("run_number", ['r'+str(i) for i in range(0, 19)])
+        run_factor = FactorModel("run_number", ['r'+str(i) for i in range(0, 20)])
         problem_factor = FactorModel("problem", ['O_n_problem', 'O_nlogn_problem', 'O_n2_problem'])
         prompt_factor = FactorModel("prompts", ['human','base_prompt','few_shot_prompt','instructed_prompt_slen','instructed_prompt_llen','instructed_prompt_de'])
         self.run_table_model = RunTableModel(
